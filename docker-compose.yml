@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  nanoclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    image: nanoclaw-app:latest
+    container_name: nanoclaw-main
+    restart: unless-stopped
+
+    # Mount Docker socket for spawning agent containers
+    volumes:
+      # Docker socket (required for spawning agent containers)
+      - /var/run/docker.sock:/var/run/docker.sock
+
+      # Persistent data volumes
+      - nanoclaw-groups:/app/groups
+      - nanoclaw-data:/app/data
+      - nanoclaw-store:/app/store
+      - nanoclaw-vector-db:/app/vector-db
+      - nanoclaw-logs:/app/logs
+
+    # Environment variables (use .env.production file or Dokploy UI)
+    env_file:
+      - .env.production
+
+    # Override critical paths for container environment
+    environment:
+      - DATA_DIR=/app/data
+      - STORE_DIR=/app/store
+      - GROUPS_DIR=/app/groups
+      - VECTOR_DB_PATH=/app/vector-db
+
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Health check
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          'require(''child_process'').exec(''ps aux | grep "node.*index.js" | grep -v grep'', (err, stdout) => process.exit(stdout ? 0 : 1))',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Logging configuration
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+    # Run as non-root user (inside container)
+    # Note: The Docker socket mount requires the container to have access to the socket
+    # This is a security trade-off: the app can spawn containers but runs as non-root otherwise
+    # The node user in the container should have permission to access the Docker socket
+
+# Persistent volumes
+volumes:
+  nanoclaw-groups:
+    driver: local
+  nanoclaw-data:
+    driver: local
+  nanoclaw-store:
+    driver: local
+  nanoclaw-vector-db:
+    driver: local
+  nanoclaw-logs:
+    driver: local
+
+# Network (optional, for future multi-service setups)
+networks:
+  default:
+    name: nanoclaw-network
+    driver: bridge

@@ -48,10 +48,11 @@ export interface Session {
 export interface NewMessage {
   id: string;
   chat_jid: string;
-  sender: string;
+  sender_jid: string;
   sender_name: string;
   content: string;
   timestamp: string;
+  from_me?: boolean;
 }
 
 export interface ScheduledTask {

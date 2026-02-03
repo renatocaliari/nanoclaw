@@ -12,6 +12,7 @@ import {
   CONTAINER_IMAGE,
   CONTAINER_MAX_OUTPUT_SIZE,
   CONTAINER_TIMEOUT,
+  CONTAINER_RUNTIME,
   DATA_DIR,
   GROUPS_DIR,
 } from './config.js';
@@ -168,15 +169,28 @@ function buildVolumeMounts(
 }
 
 function buildContainerArgs(mounts: VolumeMount[]): string[] {
-  const args: string[] = ['run', '-i', '--rm'];
+  const runtime = CONTAINER_RUNTIME.toLowerCase();
+  const isDocker = runtime === 'docker';
+
+  const args: string[] = [
+    isDocker ? 'docker' : 'container',
+    'run',
+    '-i',
+    '--rm',
+  ];
 
   // Apple Container: --mount for readonly, -v for read-write
+  // Docker: -v for all mounts (with :ro for readonly)
   for (const mount of mounts) {
     if (mount.readonly) {
-      args.push(
-        '--mount',
-        `type=bind,source=${mount.hostPath},target=${mount.containerPath},readonly`,
-      );
+      if (isDocker) {
+        args.push('-v', `${mount.hostPath}:${mount.containerPath}:ro`);
+      } else {
+        args.push(
+          '--mount',
+          `type=bind,source=${mount.hostPath},target=${mount.containerPath},readonly`,
+        );
+      }
     } else {
       args.push('-v', `${mount.hostPath}:${mount.containerPath}`);
     }
@@ -224,7 +238,10 @@ export async function runContainerAgent(
   fs.mkdirSync(logsDir, { recursive: true });
 
   return new Promise((resolve) => {
-    const container = spawn('container', containerArgs, {
+    const runtime = CONTAINER_RUNTIME.toLowerCase();
+    const command = runtime === 'docker' ? 'docker' : 'container';
+
+    const container = spawn(command, containerArgs, {
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
