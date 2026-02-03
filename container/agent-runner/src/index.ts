@@ -94,7 +94,7 @@ class HybridMemory {
 
   async initialize() {
     try {
-      this.db = await lancedb.connect({ uri: this.dbPath });
+      this.db = await lancedb.connect(this.dbPath);
 
       // Check if table exists, if not create it
       const tables = await this.db.tableNames();
