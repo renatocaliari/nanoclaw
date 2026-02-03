@@ -17,8 +17,11 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY agent-runner/package*.json ./
 
-# Install dependencies
-RUN npm install
+# Clear npm cache to avoid conflicts
+RUN rm -rf /root/.npm && npm cache clean --force
+
+# Install dependencies with legacy peer deps to resolve conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY agent-runner/ ./
