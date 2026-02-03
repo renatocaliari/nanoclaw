@@ -2,10 +2,7 @@ version: '3.8'
 
 services:
   nanoclaw:
-    build:
-      context: .
-      dockerfile: Dockerfile.app
-    image: nanoclaw-app:latest
+    image: ghcr.io/renatocaliari/nanoclaw-app:latest
     container_name: nanoclaw-main
     restart: unless-stopped
 
