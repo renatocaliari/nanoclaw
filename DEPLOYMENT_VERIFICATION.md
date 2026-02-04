@@ -77,31 +77,30 @@ All features implemented and tested:
 
 **Required Keys:**
 
-1. **z.ai API Key** (Primary AI provider)
-   - Sign up: https://platform.z.ai
-   - Get API key from dashboard
-   - Set as `ZAI_API_KEY`
+ 1. **z.ai API Key** (Primary AI provider)
+    - Sign up: https://platform.z.ai
+    - Get API key from dashboard
+    - Set as `ZAI_API_KEY`
 
-2. **OpenAI API Key** (Embeddings for LanceDB)
-   - Sign up: https://platform.openai.com/api-keys
-   - Create new API key
-   - Set as `EMBEDDINGS_API_KEY`
+ 2. **Telegram Bot Token**
+    - Open Telegram, search for @BotFather
+    - Send `/newbot` and follow instructions
+    - Copy the token (looks like `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
+    - Set as `TELEGRAM_BOT_TOKEN`
 
-3. **Telegram Bot Token**
-   - Open Telegram, search for @BotFather
-   - Send `/newbot` and follow instructions
-   - Copy the token (looks like `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
-   - Set as `TELEGRAM_BOT_TOKEN`
+> **Note**: Vector embeddings use **Transformers.js (100% free, local)** - no API key needed!
 
 **Optional Keys:**
 
-4. **Anthropic API Key** (If you want Claude models)
-   - Sign up: https://console.anthropic.com
-   - Get API key from dashboard
-   - Set as `ANTHROPIC_API_KEY`
+ 3. **Anthropic API Key** (If you want Claude models)
+    - Sign up: https://console.anthropic.com
+    - Get API key from dashboard
+    - Set as `ANTHROPIC_API_KEY`
 
-5. **OpenAI API Key** (If you want GPT models, same as #2)
-   - Set as `OPENAI_API_KEY`
+ 4. **OpenAI API Key** (If you want GPT models)
+    - Sign up: https://platform.openai.com/api-keys
+    - Create new API key
+    - Set as `OPENAI_API_KEY`
 
 ### Step 2: Prepare Docker Host (5 minutes)
 
@@ -145,10 +144,6 @@ AI_PROVIDER=zai
 AI_MODEL=glm-4.7
 ZAI_API_KEY=your-zai-api-key-here
 ZAI_BASE_URL=https://api.z.ai/api/coding/paas/v4
-
-# Embeddings (for LanceDB vector memory)
-EMBEDDINGS_API_KEY=your-openai-api-key-here
-EMBEDDINGS_PROVIDER=openai
 
 # Memory Configuration
 KNOWLEDGE_FILE_PATH=groups/main/KNOWLEDGE.md

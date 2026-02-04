@@ -16,6 +16,10 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import * as lancedb from '@lancedb/lancedb';
+import { pipeline, env } from '@xenova/transformers';
+
+env.allowLocalModels = false;
+env.allowRemoteModels = true;
 
 interface ContainerInput {
   prompt: string;
@@ -77,19 +81,13 @@ class HybridMemory {
   private table: lancedb.Table | null = null;
   private dbPath: string;
   private knowledgePath: string;
-  private embeddingsApiUrl: string;
-  private embeddingsApiKey: string;
+  private embedder: any = null;
   private currentGroup: string;
 
   constructor(groupFolder: string) {
     this.dbPath = path.join('/workspace/group', 'vectordb');
     this.knowledgePath = path.join('/workspace/group', 'KNOWLEDGE.md');
     this.currentGroup = groupFolder;
-
-    // Embedding configuration (use OpenAI for now, can be changed)
-    this.embeddingsApiUrl =
-      process.env.EMBEDDINGS_API_URL || 'https://api.openai.com/v1';
-    this.embeddingsApiKey = process.env.EMBEDDINGS_API_KEY || '';
   }
 
   async initialize() {
@@ -102,7 +100,7 @@ class HybridMemory {
         log('Creating memories table in LanceDB');
         this.table = await this.db.createTable('memories', [
           {
-            vector: new Array(1536).fill(0),
+            vector: new Array(384).fill(0),
             content: '',
             metadata: {
               type: 'conversation',
@@ -114,6 +112,13 @@ class HybridMemory {
       } else {
         this.table = await this.db.openTable('memories');
       }
+
+      log('Loading embedding model (Xenova/all-MiniLM-L6-v2)...');
+      this.embedder = await pipeline(
+        'feature-extraction',
+        'Xenova/all-MiniLM-L6-v2'
+      );
+      log('Embedding model loaded successfully');
     } catch (err) {
       log(
         `Failed to initialize LanceDB: ${err instanceof Error ? err.message : String(err)}`,
@@ -121,6 +126,7 @@ class HybridMemory {
       // Continue without LanceDB if it fails
       this.db = null;
       this.table = null;
+      this.embedder = null;
     }
   }
 
@@ -226,22 +232,17 @@ class HybridMemory {
   }
 
   private async embed(text: string): Promise<number[]> {
-    // Simple embedding using OpenAI API
+    if (!this.embedder) {
+      throw new Error('Embedding model not initialized');
+    }
+
     try {
-      const response = await fetch(`${this.embeddingsApiUrl}/embeddings`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.embeddingsApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          input: text,
-          model: 'text-embedding-3-small',
-        }),
+      const output = await this.embedder(text, {
+        pooling: 'mean',
+        normalize: true,
       });
 
-      const data = await response.json();
-      return data.data[0].embedding;
+      return Array.from(output.data);
     } catch (err) {
       log(
         `Failed to generate embedding: ${err instanceof Error ? err.message : String(err)}`,

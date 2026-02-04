@@ -20,12 +20,7 @@ This guide will help you deploy NanoClaw to Dokploy in 10 minutes.
 - Create API key
 - **Keep this safe** - you'll need it for deployment
 
-#### 2. OpenAI API Key (For Vector Embeddings)
-- Visit: https://platform.openai.com/api-keys
-- Create API key
-- **Keep this safe** - needed for LanceDB vector memory
-
-#### 3. Telegram Bot Token (For Telegram Channel)
+#### 2. Telegram Bot Token (For Telegram Channel)
 - Open Telegram
 - Search for `@BotFather`
 - Send `/newbot`
@@ -33,7 +28,8 @@ This guide will help you deploy NanoClaw to Dokploy in 10 minutes.
 - Copy the bot token
 - **Keep this safe** - needed for Telegram integration
 
-> **Note**: WhatsApp credentials are optional. You can use Telegram only.
+> **Note**: Vector embeddings now use **Transformers.js (100% free, local)** - no API key needed!
+> WhatsApp credentials are optional. You can use Telegram only.
 
 ---
 
@@ -72,12 +68,6 @@ AI_PROVIDER=zai
 AI_MODEL=glm-4.7
 ZAI_API_KEY=your-zai-api-key-here
 ZAI_BASE_URL=https://api.z.ai/api/coding/paas/v4
-
-# ============================================================================
-# EMBEDDINGS (for vector memory)
-# ============================================================================
-EMBEDDINGS_API_KEY=your-openai-api-key-here
-EMBEDDINGS_PROVIDER=openai
 
 # ============================================================================
 # MEMORY CONFIGURATION

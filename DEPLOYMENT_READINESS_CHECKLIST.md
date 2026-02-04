@@ -37,20 +37,17 @@ You need to obtain API keys from these providers BEFORE deployment:
   - Purpose: Main AI provider (GLM-4.7 model)
   - Environment variable: `ZAI_API_KEY`
 
-- [ ] **OpenAI API Key** (REQUIRED for embeddings)
-  - Get from: https://platform.openai.com/api-keys
-  - Purpose: Vector embeddings for LanceDB
-  - Environment variable: `EMBEDDINGS_API_KEY` or `OPENAI_API_KEY`
-
 - [ ] **Anthropic API Key** (OPTIONAL - Backup provider)
   - Get from: https://console.anthropic.com
   - Purpose: Claude models (Claude 3.5 Sonnet, Haiku, Opus)
   - Environment variable: `ANTHROPIC_API_KEY`
 
-- [ ] **OpenAI API Key for Chat** (OPTIONAL - Backup provider)
+- [ ] **OpenAI API Key** (OPTIONAL - Backup provider)
   - Get from: https://platform.openai.com/api-keys
   - Purpose: GPT models (GPT-4, GPT-3.5)
   - Environment variable: `OPENAI_API_KEY`
+
+> **Note**: Vector embeddings now use **Transformers.js (100% free, local)** - no API key needed!
 
 #### Channel Keys
 
